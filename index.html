@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typeahead Feature</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<style>
+    /* styles.css */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f4f4f4;
+}
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+#typeahead-input {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.suggestions {
+    position: absolute;
+    width: 39%;
+    border: 1px solid #ddd;
+    background-color: #fff;
+    z-index: 1000;
+}
+
+.suggestion-item {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.suggestion-item:hover {
+    background-color: #ddd;
+}
+
+</style>
+<body>
+    <div class="container">
+        <h1>Typeahead Feature</h1>
+        <input type="text" id="typeahead-input" placeholder="Type to search...">
+        <div id="suggestions" class="suggestions"></div>
+    </div>
+    <script src="app.js"></script>
+</body>
+
+
+<script>
+    // app.js
+const input = document.getElementById('typeahead-input');
+const suggestionsContainer = document.getElementById('suggestions');
+
+// Example predefined list of items
+const items = [
+    "Apple",
+    "Banana",
+    "Cherry",
+    "Date",
+    "Fig",
+    "Grape",
+    "Kiwi",
+    "Lemon",
+    "Mango",
+    "Orange",
+    "Pineapple",
+    "Strawberry",
+    "Watermelon"
+];
+
+// Debounce function to limit the rate of function execution
+function debounce(func, delay) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), delay);
+    };
+}
+
+// Function to update suggestions based on input
+function updateSuggestions(query) {
+    suggestionsContainer.innerHTML = '';
+    
+    if (query.length === 0) {
+        return;
+    }
+    
+    const filteredItems = items.filter(item => 
+        item.toLowerCase().includes(query.toLowerCase())
+    );
+    
+    if (filteredItems.length === 0) {
+        suggestionsContainer.innerHTML = '<div class="suggestion-item">No matches found</div>';
+        return;
+    }
+    
+    filteredItems.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'suggestion-item';
+        div.textContent = item;
+        div.addEventListener('click', () => {
+            input.value = item;
+            suggestionsContainer.innerHTML = '';
+        });
+        suggestionsContainer.appendChild(div);
+    });
+}
+
+// Handle input event with debouncing
+const handleInput = debounce((event) => {
+    const query = event.target.value;
+    updateSuggestions(query);
+}, 300); // Debounce delay of 300ms
+
+input.addEventListener('input', handleInput);
+
+// Clear suggestions when clicking outside
+document.addEventListener('click', (event) => {
+    if (!event.target.closest('#typeahead-input') && !event.target.closest('#suggestions')) {
+        suggestionsContainer.innerHTML = '';
+    }
+});
+
+</script>
+</html>
